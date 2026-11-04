@@ -3,18 +3,25 @@
 set -eu
 
 ARCH=$(uname -m)
-VERSION=$(pacman -Q PACKAGENAME | awk '{print $2; exit}') # example command to get version of application here
-export ARCH VERSION
+export ARCH
 export OUTPATH=./dist
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-export ICON=PATH_OR_URL_TO_ICON
-export DESKTOP=PATH_OR_URL_TO_DESKTOP_ENTRY
+export ICON=./flatcam.png
+export DEPLOY_PYTHON=1
+export DEPLOY_QT=1
+export QT_DIR=qt5
 
 # Deploy dependencies
-quick-sharun /PATH/TO/BINARY_AND_LIBRARIES_HERE
-
-# Additional changes can be done in between here
+quick-sharun ./AppDir/bin/flatcam          \
+	/usr/lib/python*/lib-dynload/_tkinter* \
+	/usr/lib/libtcl*.so*          		   \
+	/usr/lib/libtk*.so*          		   \
+	/usr/lib/tcl*                 		   \
+	/usr/lib/tk*                  		   \
+	/usr/lib/libspatialindex*.so* 		   \
+	/usr/lib/libspatialite.so*    		   \
+	/usr/lib/libabsl_*_internal.so*
 
 # Turn AppDir into AppImage
 quick-sharun --make-appimage
