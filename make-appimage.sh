@@ -3,18 +3,16 @@
 set -eu
 
 ARCH=$(uname -m)
-VERSION=$(pacman -Q PACKAGENAME | awk '{print $2; exit}') # example command to get version of application here
-export ARCH VERSION
+export ARCH
 export OUTPATH=./dist
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-export ICON=PATH_OR_URL_TO_ICON
-export DESKTOP=PATH_OR_URL_TO_DESKTOP_ENTRY
+export ICON=https://bitbucket.org/jpcgt/flatcam/raw/dae9cbb0471e693b95fd809ddd8bf11ff026ac67/share/flatcam_icon256.png
+export DEPLOY_OPENGL=1
+export DEPLOY_PYTHON=1
 
 # Deploy dependencies
-quick-sharun /PATH/TO/BINARY_AND_LIBRARIES_HERE
-
-# Additional changes can be done in between here
+quick-sharun ./AppDir/bin/flatcam
 
 # Turn AppDir into AppImage
 quick-sharun --make-appimage
