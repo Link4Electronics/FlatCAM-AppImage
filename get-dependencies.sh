@@ -24,6 +24,7 @@ pacman -Syu --noconfirm \
     python-lxml        \
     python-matplotlib  \
     python-opengl      \
+    python-pyserial    \
     python-pyqt5       \
     python-qrcode      \
     python-reportlab   \
@@ -44,7 +45,14 @@ get-debloated-pkgs --add-common --prefer-nano
 
 PRE_BUILD_CMDS="sed -i '/^check() {/,/^}/d' ./PKGBUILD" make-aur-package python-ezdxf
 make-aur-package python-mypy-protobuf
-make-aur-package python-or-tools
+
+# or-tools 9.15 pins pybind11_protobuf f02a2b7, whose DescriptorDatabase
+# overrides take a std::string rather than the std::string_view that
+# protobuf 34+ uses, so they stop overriding and the build fails
+PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"#" ./PKGBUILD
+sed -i "s#-DUSE_SYSTEM_PYBIND=ON#-DUSE_SYSTEM_PYBIND=ON -DPYBIND11_PROTOBUF_BUILD_TESTING=OFF#" ./PKGBUILD' \
+    make-aur-package python-or-tools
+
 make-aur-package python-rasterio
 make-aur-package python-svg.path
 make-aur-package python-vispy
@@ -52,11 +60,28 @@ make-aur-package python-vispy
 echo "Building FlatCAM..."
 echo "---------------------------------------------------------------"
 REPO="https://bitbucket.org/jpcgt/flatcam"
-VERSION="$(git ls-remote "$REPO" HEAD | cut -c 1-9 | head -1)"
-git clone --depth 1 "$REPO" ./flatcam
+BRANCH="Beta"
+VERSION="$(git ls-remote "$REPO" "refs/heads/$BRANCH" | cut -c 1-9 | head -1)"
+git clone --depth 1 -b "$BRANCH" "$REPO" ./flatcam
 echo "$VERSION" > ~/version
 
+# numpy 2 dropped the np.Inf alias
+find ./flatcam -name '*.py' -exec sed -i 's/\bnp\.Inf\b/np.inf/g' {} +
+
+# vispy >= 0.10 replaced _marker_dict with symbol_shaders, which already
+# provides the '++' marker that this patch was adding
+sed -i '/markers\._marker_dict/d' ./flatcam/appGUI/VisPyPatches.py
+
 mkdir -p ./AppDir/bin
-cd ./flatcam && python -O -m py_compile *.py
-rm -rf ./*.sh ./doc ./tests
-cp -r * ../AppDir/bin
+cd ./flatcam
+python -O -m py_compile ./*.py
+rm -rf ./doc ./tests
+cp -r ./* ../AppDir/bin
+
+cat > ../AppDir/bin/flatcam <<'EOF'
+#!/bin/sh
+exec python3 "$(dirname "$(readlink -f "$0")")/FlatCAM.py" "$@"
+EOF
+chmod +x ../AppDir/bin/flatcam
+
+cp ./assets/resources/flatcam_icon256.png ../flatcam.png
