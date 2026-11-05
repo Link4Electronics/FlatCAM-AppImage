@@ -46,11 +46,12 @@ get-debloated-pkgs --add-common --prefer-nano
 PRE_BUILD_CMDS="sed -i '/^check() {/,/^}/d' ./PKGBUILD" make-aur-package python-ezdxf
 make-aur-package python-mypy-protobuf
 
-# or-tools 9.15 pins pybind11_protobuf f02a2b7, whose DescriptorDatabase
-# overrides take a std::string rather than the std::string_view that
-# protobuf 34+ uses, so they stop overriding and the build fails
+# or-tools 9.15 does not build against protobuf 34+: its pinned
+# pybind11_protobuf still overrides DescriptorDatabase with std::string where
+# protobuf now passes a string_view, and its test-only protobuf-matchers
+# library still hands AddIgnoreCriteria a raw pointer
 PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"#" ./PKGBUILD
-sed -i "s#-DUSE_SYSTEM_PYBIND=ON#-DUSE_SYSTEM_PYBIND=ON -DPYBIND11_PROTOBUF_BUILD_TESTING=OFF#" ./PKGBUILD' \
+sed -i "s#-DUSE_SYSTEM_PYBIND=ON#-DUSE_SYSTEM_PYBIND=ON -DBUILD_TESTING=OFF -DPYBIND11_PROTOBUF_BUILD_TESTING=OFF#" ./PKGBUILD' \
     make-aur-package python-or-tools
 
 make-aur-package python-rasterio
