@@ -7,8 +7,14 @@ ARCH=$(uname -m)
 echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
 pacman -Syu --noconfirm \
+    coin-or-cbc        \
+    coin-or-clp        \
     cython             \
+    eigen              \
+    glpk               \
     hicolor-icon-theme \
+    pybind11           \
+    python-absl        \
     python-cycler      \
     python-dateutil    \
     python-dill        \
@@ -26,6 +32,9 @@ pacman -Syu --noconfirm \
     python-shapely     \
     python-simplejson  \
     python-svglib      \
+    re2                \
+    scip               \
+    swig               \
     tk
 
 
@@ -34,6 +43,7 @@ echo "---------------------------------------------------------------"
 get-debloated-pkgs --add-common --prefer-nano
 
 PRE_BUILD_CMDS="sed -i '/^check() {/,/^}/d' ./PKGBUILD" make-aur-package python-ezdxf
+make-aur-package python-mypy-protobuf
 make-aur-package python-or-tools
 make-aur-package python-rasterio
 make-aur-package python-svg.path
