@@ -50,7 +50,7 @@ make-aur-package python-mypy-protobuf
 # pybind11_protobuf still overrides DescriptorDatabase with std::string where
 # protobuf now passes a string_view, and its test-only protobuf-matchers
 # library still hands AddIgnoreCriteria a raw pointer
-PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"#" ./PKGBUILD
+PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"\n  sed -i \"s|ortools/base/source_location.h|absl/types/source_location.h|\" \${_base}-\${pkgver}/ortools/math_opt/cpp/message_callback.{h,cc}#" ./PKGBUILD
 sed -i "s#-DUSE_SYSTEM_PYBIND=ON#-DUSE_SYSTEM_PYBIND=ON -DBUILD_TESTING=OFF -DPYBIND11_PROTOBUF_BUILD_TESTING=OFF#" ./PKGBUILD' \
     make-aur-package python-or-tools
 
