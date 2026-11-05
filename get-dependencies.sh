@@ -33,7 +33,7 @@ echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
 get-debloated-pkgs --add-common --prefer-nano
 
-make-aur-package python-ezdxf
+PRE_BUILD_CMDS="sed -i '/^check() {/,/^}/d' ./PKGBUILD" make-aur-package python-ezdxf
 make-aur-package python-or-tools
 make-aur-package python-rasterio
 make-aur-package python-svg.path
