@@ -11,6 +11,7 @@ pacman -Syu --noconfirm \
     coin-or-clp        \
     cython             \
     eigen              \
+    gdal               \
     glpk               \
     hicolor-icon-theme \
     pybind11           \
