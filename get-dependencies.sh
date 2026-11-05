@@ -49,8 +49,11 @@ make-aur-package python-mypy-protobuf
 # or-tools 9.15 does not build against protobuf 34+: its pinned
 # pybind11_protobuf still overrides DescriptorDatabase with std::string where
 # protobuf now passes a string_view, and its test-only protobuf-matchers
-# library still hands AddIgnoreCriteria a raw pointer
-PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"\n  sed -i \"s|ortools/base/source_location.h|absl/types/source_location.h|\" \${_base}-\${pkgver}/ortools/math_opt/cpp/message_callback.{h,cc}#" ./PKGBUILD
+# library still hands AddIgnoreCriteria a raw pointer.
+# abseil 20260817 also declares absl::SourceLocation itself, which collides with
+# the copy or-tools keeps in ortools/base/source_location.h, so the four files
+# that include that shim are pointed at the abseil header instead
+PRE_BUILD_CMDS='sed -i "s#^  cp pybind11_protobuf.patch \${_base}-\${pkgver}/patches#&\n  sed -i \"s|f02a2b7653bc50eb5119d125842a3870db95d251|8e1cd4edfca6922c6d968eba297190145bc21f02|\" \"\${_base}-\${pkgver}/cmake/dependencies/CMakeLists.txt\"\n  sed -i \"s|ortools/base/source_location.h|absl/types/source_location.h|\" \${_base}-\${pkgver}/ortools/math_opt/cpp/message_callback.{h,cc} \${_base}-\${pkgver}/ortools/math_opt/solvers/gurobi/g_gurobi.{h,cc}#" ./PKGBUILD
 sed -i "s#-DUSE_SYSTEM_PYBIND=ON#-DUSE_SYSTEM_PYBIND=ON -DBUILD_TESTING=OFF -DPYBIND11_PROTOBUF_BUILD_TESTING=OFF#" ./PKGBUILD' \
     make-aur-package python-or-tools
 
