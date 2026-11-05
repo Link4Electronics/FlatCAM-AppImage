@@ -38,6 +38,7 @@ pacman -Syu --noconfirm \
     python-shapely     \
     python-simplejson  \
     python-svglib      \
+    qt5-svg            \
     re2                \
     scip               \
     swig               \

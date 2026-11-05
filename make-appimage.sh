@@ -10,6 +10,8 @@ export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}
 export ICON=./flatcam.png
 export DEPLOY_OPENGL=1
 export DEPLOY_PYTHON=1
+export DEPLOY_QT=1
+export QT_DIR=qt5
 
 # Deploy dependencies
 quick-sharun                    \
