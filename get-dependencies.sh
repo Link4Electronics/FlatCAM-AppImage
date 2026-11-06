@@ -68,7 +68,9 @@ git clone --depth 1 -b "$BRANCH" "$REPO" ./flatcam
 echo "$VERSION" > ~/version
 
 # numpy 2 dropped the np.Inf alias
-find ./flatcam -name '*.py' -exec sed -i 's/\bnp\.Inf\b/np.inf/g' {} +
+find ./flatcam -name '*.py' -exec sed -i \
+    -e 's/\bnp\.Inf\b/np.inf/g' \
+    -e 's/^from numpy import Inf$/from numpy import inf as Inf/' {} +
 
 # vispy >= 0.10 replaced _marker_dict with symbol_shaders, which already
 # provides the '++' marker that this patch was adding
