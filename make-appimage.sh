@@ -13,13 +13,15 @@ export DEPLOY_QT=1
 export QT_DIR=qt5
 
 # Deploy dependencies
-quick-sharun                    \
-	./AppDir/bin/flatcam        \
+quick-sharun ./AppDir/bin/flatcam          \
 	/usr/lib/python*/lib-dynload/_tkinter* \
-	/usr/lib/libtcl*.so*        \
-	/usr/lib/libtk*.so*         \
-	/usr/lib/tcl*               \
-	/usr/lib/tk*
+	/usr/lib/libtcl*.so*          		   \
+	/usr/lib/libtk*.so*          		   \
+	/usr/lib/tcl*                 		   \
+	/usr/lib/tk*                  		   \
+	/usr/lib/libspatialindex*.so* 		   \
+	/usr/lib/libspatialite.so*    		   \
+	/usr/lib/libabsl_*_internal.so*
 
 # Turn AppDir into AppImage
 quick-sharun --make-appimage
