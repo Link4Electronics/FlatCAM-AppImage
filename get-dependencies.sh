@@ -76,6 +76,37 @@ find ./flatcam -name '*.py' -exec sed -i \
 # provides the '++' marker that this patch was adding
 sed -i '/markers\._marker_dict/d' ./flatcam/appGUI/VisPyPatches.py
 
+python3 - <<'PY'
+import pathlib
+
+
+def patch(path, old, new):
+    p = pathlib.Path(path)
+    text = p.read_text()
+    if old not in text:
+        raise SystemExit('patch target missing in %s: %r' % (path, old))
+    p.write_text(text.replace(old, new))
+
+
+# Finder.find_module() and Loader.load_module() were removed in Python 3.12
+patch('flatcam/tclCommands/__init__.py',
+      '    module = loader.find_module(name).load_module(name)\n', '')
+
+patch('flatcam/appPreProcessor.py',
+      'from importlib.machinery import SourceFileLoader',
+      'from importlib.util import module_from_spec, spec_from_file_location')
+patch('flatcam/appPreProcessor.py',
+      "                SourceFileLoader('FlatCAMPostProcessor', file).load_module()",
+      "                spec = spec_from_file_location('FlatCAMPostProcessor', file)\n"
+      "                spec.loader.exec_module(module_from_spec(spec))")
+
+# the bundled preprocessors sit next to this file, not in the working directory
+patch('flatcam/appPreProcessor.py',
+      "        os.path.join('preprocessors', '*.py')\n",
+      "        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'preprocessors', '*.py'),\n"
+      "        os.path.join('preprocessors', '*.py')\n")
+PY
+
 mkdir -p ./AppDir/bin
 cd ./flatcam
 python -O -m py_compile ./*.py
